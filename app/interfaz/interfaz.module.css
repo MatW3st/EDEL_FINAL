@@ -1,0 +1,380 @@
+/* Contenedor principal */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  box-sizing: border-box;
+  background: white; /* Fondo blanco para el contenedor principal */
+  border-radius: 8px; /* Opcional: Bordes redondeados */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Opcional: Sombra para resaltar */
+}
+
+/* Header */
+.header {
+  text-align: center;
+  padding: 20px 0;
+  background: white; /* Fondo blanco */
+}
+
+.header h1 {
+  font-size: 2rem;
+  margin: 0;
+  color: #333;
+}
+
+.header h2 {
+  font-size: 1.5rem;
+  margin: 5px 0 0;
+  color: #666;
+}
+.modalBody {
+  padding: 20px;
+  font-size: 16px;
+}
+.modalBody.error {
+  background-color: #ffe6e6;
+  color: #d32f2f;
+}
+.modalBody.success {
+  background-color: #e6ffe6;
+  color: #2e7d32;
+}
+
+@media (max-width: 768px) {
+  .header h1 {
+    font-size: 1.5rem;
+  }
+  .header h2 {
+    font-size: 1.2rem;
+  }
+}
+
+/* Filtros */
+.filtersContainer {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 20px;
+  padding: 10px;
+  background: white; /* Fondo blanco */
+}
+
+.filtersContainer span {
+  color: #000000; /* Texto negro para los spans dentro de filtersContainer */
+}
+
+.filterGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.select {
+  padding: 5px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  color: #000000; /* Texto negro para el select */
+}
+
+.filterButton {
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #f9f9f9;
+  cursor: pointer;
+  color: #000000; /* Texto negro para los botones */
+}
+
+.filterButton.active {
+  background: #0070f3;
+  color: white;
+}
+
+.dateFilter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dateBox {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: white; /* Fondo blanco */
+}
+
+.dateBox span {
+  color: #000000; /* Texto negro dentro de dateBox */
+}
+
+.checkIcon {
+  font-size: 1rem;
+  color: #28a745; /* Verde como en la imagen */
+}
+
+.logoutButton {
+  padding: 8px 15px;
+  background: #dc3545; /* Rojo como en la imagen */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.logoutButton:hover {
+  background: #c82333;
+}
+
+@media (max-width: 768px) {
+  .filtersContainer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .filterGroup,
+  .dateFilter {
+    width: 100%;
+  }
+}
+
+/* Botón Planificar */
+.planButton {
+  display: block;
+  margin: 20px auto;
+  padding: 10px 20px;
+  background: #28a745; /* Verde como en la imagen */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.planButton:hover {
+  background: #218838;
+}
+
+@media (max-width: 768px) {
+  .planButton {
+    width: 100%;
+    max-width: 200px;
+  }
+}
+/* Asegurarse de que el botón de cerrar sea visible */
+.modalHeader .btn-close {
+  background: transparent;
+  border: none;
+  opacity: 1;
+  color: #000;
+}
+
+/* Mejorar el diseño del modal */
+.modalContent {
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Ajustar el padding del cuerpo del modal */
+.modalBody {
+  padding: 20px;
+}
+
+/* Ajustar el footer del modal */
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Tabla */
+.tableWrapper {
+  overflow-x: auto;
+  background: white; /* Corregido a blanco */
+}
+
+.productionTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  background: white; /* Fondo blanco */
+}
+
+.productionTable th,
+.productionTable td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #000000; /* Líneas negras */
+  color: #000000; /* Letra negra para th y td */
+}
+
+.productionTable th {
+  background: #f4f4f4;
+  font-weight: bold;
+  color: #000000; /* Letra negra para encabezados */
+}
+
+.productionTable td {
+  background: white; /* Fondo blanco para las celdas */
+  color: #000000; /* Letra negra para datos */
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  background: #28a745; /* Verde como en la imagen */
+  color: white; /* El texto dentro de statusBadge sigue siendo blanco */
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .productionTable th,
+  .productionTable td {
+    padding: 8px;
+    font-size: 0.9rem;
+    color: #000000; /* Letra negra en tablets */
+  }
+
+  /* Convertir tabla a diseño de lista en pantallas muy pequeñas */
+  @media (max-width: 480px) {
+    .productionTable {
+      display: block;
+      overflow-x: auto;
+    }
+
+    .productionTable thead {
+      display: none;
+    }
+
+    .productionTable tr {
+      display: block;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .productionTable td {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      color: #000000; /* Letra negra en móviles */
+    }
+
+    .productionTable td:last-child {
+      border-bottom: none;
+    }
+
+    .productionTable td::before {
+      content: attr(data-label);
+      font-weight: bold;
+      margin-right: 10px;
+      color: #000000; /* Letra negra para las etiquetas */
+    }
+
+    .productionTable td[data-label="Estado"] .statusBadge {
+      margin-left: 10px;
+    }
+  }
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: white; /* Fondo blanco */
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 90%;
+}
+
+.modalContent h3 {
+  margin: 0 0 10px;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.modalContent p {
+  margin: 0 0 20px;
+  font-size: 1rem;
+  color: #666;
+}
+
+.modalContent button {
+  padding: 10px 20px;
+  background: #0070f3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.modalContent button:hover {
+  background: #005bb5;
+}
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+  padding-bottom: 20px;
+}
+
+.pagination span {
+  font-size: 16px;
+}
+.modalBody {
+  text-align: center;
+  font-size: 1.2rem;
+  padding: 20px;
+  color: #000000; /* Verde para el mensaje de éxito */
+}
+
+.modalBody::before {
+  content: "👋 ";
+  font-size: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .modalContent {
+    width: 80%;
+    padding: 15px;
+  }
+
+  .modalContent h3 {
+    font-size: 1.2rem;
+  }
+
+  .modalContent p {
+    font-size: 0.9rem;
+  }
+
+  .modalContent button {
+    padding: 8px 15px;
+    font-size: 0.9rem;
+  }
+  
+}
