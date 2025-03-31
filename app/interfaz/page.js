@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Modal, Form } from "react-bootstrap";
@@ -38,18 +37,7 @@ export default function PlaneacionProduccion() {
 
   const statusOptions = ["Todos", "Planeado", "En Proceso", "Completado"];
 
-  const formatDate = (dateStr) => {
-    if (!dateStr) return "N/A";
-    const date = new Date(dateStr);
-    return isNaN(date.getTime())
-      ? "N/A"
-      : date.toLocaleDateString("es-ES", {
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-        });
-  };
-
+  // Eliminamos la función formatDate porque no se usa (resuelve el error de Codacy en la línea 41)
   const formatDateForInput = (dateStr) => {
     if (!dateStr) return "N/A";
     const date = new Date(dateStr);
@@ -67,19 +55,28 @@ export default function PlaneacionProduccion() {
     setShowModal(true);
   };
 
+  // Lista blanca de endpoints permitidos para evitar problemas de seguridad
+  const ALLOWED_ENDPOINTS = ["obtener-sucursales", "obtener-planeacion"];
+
   const fetchData = async (endpoint, setter, errorAction) => {
     try {
+      // Validar el endpoint contra la lista blanca (resuelve el error de seguridad en la línea 77)
+      if (!ALLOWED_ENDPOINTS.includes(endpoint)) {
+        throw new Error("Endpoint no permitido");
+      }
+
       const token = Cookies.get("token");
       if (!token) {
         throw new Error("No token found");
       }
 
-      const response = await axios.get(`${API_BASE_URL_GET}/${endpoint}`, {
+      const url = `${API_BASE_URL_GET}/${endpoint}`;
+      const response = await axios.get(url, {
         withCredentials: true,
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // Keep the Authorization header for session
-          Cookie: `token=${token}`, // Add the Cookie header as per the image
+          Authorization: `Bearer ${token}`,
+          Cookie: `token=${token}`,
         },
       });
 
@@ -103,7 +100,7 @@ export default function PlaneacionProduccion() {
       router.push("/login");
       return;
     }
-  
+
     const loadData = async () => {
       setIsLoading(true);
       await Promise.all([
@@ -112,7 +109,7 @@ export default function PlaneacionProduccion() {
       ]);
       setIsLoading(false);
     };
-  
+
     loadData();
   }, [router]);
 
@@ -173,33 +170,53 @@ export default function PlaneacionProduccion() {
     setSelectedPlanSucursal("");
   };
 
-  const handleSavePlan = async () => {
-    if (!selectedPlanSucursal || !planDate || !dailyProduction) {
+  // Funciones auxiliares para refactorizar handleSavePlan
+  const validatePlanInputs = (sucursal, date, production) => {
+    if (!sucursal || !date || !production) {
       setModalMessage("⚠️ Por favor, completa todos los campos antes de guardar.");
       setShowModal(true);
-      return;
+      return false;
     }
 
-    const productionValue = parseFloat(dailyProduction);
+    const productionValue = parseFloat(production);
     if (productionValue <= 0) {
       setModalMessage("⚠️ La producción diaria debe ser mayor que 0.");
       setShowModal(true);
-      return;
+      return false;
     }
 
+    return true;
+  };
+
+  const getSucursalId = (sucursal) => {
     const sucursalId = filterOptions.find(
-      (option) => option.nombre === selectedPlanSucursal
+      (option) => option.nombre === sucursal
     )?.id;
     if (!sucursalId) {
       setModalMessage("⚠️ Sucursal no válida.");
       setShowModal(true);
+      return null;
+    }
+    return sucursalId;
+  };
+
+  const convertProductionToKg = (production, unit) => {
+    const productionValue = parseFloat(production);
+    return unit === "Toneladas" ? productionValue * 1000 : productionValue;
+  };
+
+  const handleSavePlan = async () => {
+    // Validar entradas (resuelve el error de demasiadas líneas en la línea 176)
+    if (!validatePlanInputs(selectedPlanSucursal, planDate, dailyProduction)) {
       return;
     }
 
-    let produccionEstimadaKg = productionValue;
-    if (productionUnit === "Toneladas") {
-      produccionEstimadaKg *= 1000;
-    }
+    // Obtener el ID de la sucursal
+    const sucursalId = getSucursalId(selectedPlanSucursal);
+    if (!sucursalId) return;
+
+    // Convertir la producción a Kg
+    const produccionEstimadaKg = convertProductionToKg(dailyProduction, productionUnit);
 
     const planData = {
       sucursal_id: sucursalId,
@@ -226,8 +243,8 @@ export default function PlaneacionProduccion() {
           withCredentials: true,
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // Keep the Authorization header for session
-            Cookie: `token=${token}`, // Add the Cookie header as per the image
+            Authorization: `Bearer ${token}`,
+            Cookie: `token=${token}`,
           },
         }
       );
@@ -320,8 +337,8 @@ export default function PlaneacionProduccion() {
           withCredentials: true,
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // Keep the Authorization header for session
-            Cookie: `token=${token}`, 
+            Authorization: `Bearer ${token}`,
+            Cookie: `token=${token}`,
           },
         }
       );
