@@ -54,19 +54,33 @@ export default function PlaneacionProduccion() {
     setShowModal(true);
   };
 
-  // Lista blanca de endpoints permitidos para GET
+  // Lista blanca de endpoints permitidos para GET, POST y PUT
   const ALLOWED_GET_ENDPOINTS = ["obtener-sucursales", "obtener-planeacion"];
-  // Lista blanca de endpoints permitidos para POST y PUT
   const ALLOWED_POST_ENDPOINTS = ["/api/add"];
   const ALLOWED_PUT_ENDPOINTS = ["/api/modify/"];
 
   // Validar URLs para evitar problemas de seguridad
   const isSafeUrl = (url, allowedEndpoints) => {
-    return allowedEndpoints.some(endpoint => url.includes(endpoint));
+    return allowedEndpoints.some((endpoint) => url.includes(endpoint));
+  };
+
+  // Función para sanitizar URLs y evitar inyecciones
+  const sanitizeUrl = (url) => {
+    // Eliminar caracteres potencialmente peligrosos
+    const sanitized = url.replace(/[^a-zA-Z0-9:/.-]/g, "");
+    // Asegurarse de que la URL comience con el dominio esperado
+    if (
+      !sanitized.startsWith(API_BASE_URL_GET) &&
+      !sanitized.startsWith(API_BASE_URL_POST)
+    ) {
+      throw new Error("URL no pertenece a un dominio permitido");
+    }
+    return sanitized;
   };
 
   const fetchData = async (endpoint, setter, errorAction) => {
     try {
+      // Validar el endpoint contra la lista blanca
       if (!ALLOWED_GET_ENDPOINTS.includes(endpoint)) {
         throw new Error("Endpoint no permitido");
       }
@@ -77,11 +91,13 @@ export default function PlaneacionProduccion() {
       }
 
       const url = `${API_BASE_URL_GET}/${endpoint}`;
-      if (!isSafeUrl(url, ALLOWED_GET_ENDPOINTS)) {
+      // Validar y sanitizar la URL
+      const sanitizedUrl = sanitizeUrl(url);
+      if (!isSafeUrl(sanitizedUrl, ALLOWED_GET_ENDPOINTS)) {
         throw new Error("URL no permitida");
       }
 
-      const response = await axios.get(url, {
+      const response = await axios.get(sanitizedUrl, {
         withCredentials: true,
         headers: {
           "Content-Type": "application/json",
@@ -253,12 +269,13 @@ export default function PlaneacionProduccion() {
       if (!token) return;
 
       const url = `${API_BASE_URL_POST}/api/add`;
-      if (!isSafeUrl(url, ALLOWED_POST_ENDPOINTS)) {
+      // Validar y sanitizar la URL
+      const sanitizedUrl = sanitizeUrl(url);
+      if (!isSafeUrl(sanitizedUrl, ALLOWED_POST_ENDPOINTS)) {
         throw new Error("URL no permitida");
       }
 
-      // Eliminamos la asignación a 'response' porque no se usa (resuelve el error en la línea 239)
-      await axios.post(url, planData, {
+      await axios.post(sanitizedUrl, planData, {
         withCredentials: true,
         headers: {
           "Content-Type": "application/json",
@@ -342,11 +359,13 @@ export default function PlaneacionProduccion() {
       if (!token) return;
 
       const url = `${API_BASE_URL_POST}/api/modify/${selectedRow.id}`;
-      if (!isSafeUrl(url, ALLOWED_PUT_ENDPOINTS)) {
+      // Validar y sanitizar la URL
+      const sanitizedUrl = sanitizeUrl(url);
+      if (!isSafeUrl(sanitizedUrl, ALLOWED_PUT_ENDPOINTS)) {
         throw new Error("URL no permitida");
       }
 
-      await axios.put(url, updatedPlanData, {
+      await axios.put(sanitizedUrl, updatedPlanData, {
         withCredentials: true,
         headers: {
           "Content-Type": "application/json",
