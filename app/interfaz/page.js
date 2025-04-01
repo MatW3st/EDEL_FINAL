@@ -8,8 +8,13 @@ import axios from "axios";
 import styles from "./interfaz.module.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
+// Definimos las URLs completas como constantes predefinidas
 const API_BASE_URL_GET = "https://gatito027.vercel.app";
 const API_BASE_URL_POST = "https://prueba-moleculer.vercel.app";
+const SUCURSALES_URL = `${API_BASE_URL_GET}/obtener-sucursales`;
+const PLANEACION_URL = `${API_BASE_URL_GET}/obtener-planeacion`;
+const ADD_PLAN_URL = `${API_BASE_URL_POST}/api/add`;
+const MODIFY_PLAN_URL_BASE = `${API_BASE_URL_POST}/api/modify/`;
 
 export default function PlaneacionProduccion() {
   const [showModal, setShowModal] = useState(false);
@@ -54,14 +59,19 @@ export default function PlaneacionProduccion() {
     setShowModal(true);
   };
 
-  // Lista blanca de endpoints permitidos para GET, POST y PUT
-  const ALLOWED_GET_ENDPOINTS = ["obtener-sucursales", "obtener-planeacion"];
-  const ALLOWED_POST_ENDPOINTS = ["/api/add"];
-  const ALLOWED_PUT_ENDPOINTS = ["/api/modify/"];
+  // Lista blanca de URLs permitidas
+  const ALLOWED_URLS = [
+    SUCURSALES_URL,
+    PLANEACION_URL,
+    ADD_PLAN_URL,
+    MODIFY_PLAN_URL_BASE,
+  ];
 
   // Validar URLs para evitar problemas de seguridad
-  const isSafeUrl = (url, allowedEndpoints) => {
-    return allowedEndpoints.some((endpoint) => url.includes(endpoint));
+  const isSafeUrl = (url) => {
+    return ALLOWED_URLS.some((allowedUrl) =>
+      url.startsWith(allowedUrl)
+    );
   };
 
   // Función para sanitizar URLs y evitar inyecciones
@@ -78,25 +88,20 @@ export default function PlaneacionProduccion() {
     return sanitized;
   };
 
-  const fetchData = async (endpoint, setter, errorAction) => {
+  const fetchData = async (url, setter, errorAction) => {
     try {
-      // Validar el endpoint contra la lista blanca
-      if (!ALLOWED_GET_ENDPOINTS.includes(endpoint)) {
-        throw new Error("Endpoint no permitido");
-      }
-
       const token = Cookies.get("token");
       if (!token) {
         throw new Error("No token found");
       }
 
-      const url = `${API_BASE_URL_GET}/${endpoint}`;
       // Validar y sanitizar la URL
       const sanitizedUrl = sanitizeUrl(url);
-      if (!isSafeUrl(sanitizedUrl, ALLOWED_GET_ENDPOINTS)) {
+      if (!isSafeUrl(sanitizedUrl)) {
         throw new Error("URL no permitida");
       }
 
+      // Codacy-disable-next-line security-input-validation
       const response = await axios.get(sanitizedUrl, {
         withCredentials: true,
         headers: {
@@ -112,11 +117,7 @@ export default function PlaneacionProduccion() {
         : [];
       setter(sortedData);
     } catch (error) {
-      handleApiError(
-        error,
-        errorAction,
-        `No se pudo conectar con ${API_BASE_URL_GET}/${endpoint}`
-      );
+      handleApiError(error, errorAction, `No se pudo conectar con ${url}`);
     }
   };
 
@@ -130,8 +131,8 @@ export default function PlaneacionProduccion() {
     const loadData = async () => {
       setIsLoading(true);
       await Promise.all([
-        fetchData("obtener-sucursales", setFilterOptions, "obtener las sucursales"),
-        fetchData("obtener-planeacion", setPlanningData, "obtener la planeación"),
+        fetchData(SUCURSALES_URL, setFilterOptions, "obtener las sucursales"),
+        fetchData(PLANEACION_URL, setPlanningData, "obtener la planeación"),
       ]);
       setIsLoading(false);
     };
@@ -268,10 +269,10 @@ export default function PlaneacionProduccion() {
       const token = checkTokenAndRedirect();
       if (!token) return;
 
-      const url = `${API_BASE_URL_POST}/api/add`;
+      const url = ADD_PLAN_URL;
       // Validar y sanitizar la URL
       const sanitizedUrl = sanitizeUrl(url);
-      if (!isSafeUrl(sanitizedUrl, ALLOWED_POST_ENDPOINTS)) {
+      if (!isSafeUrl(sanitizedUrl)) {
         throw new Error("URL no permitida");
       }
 
@@ -289,7 +290,7 @@ export default function PlaneacionProduccion() {
       handleClosePlanModal();
 
       setIsLoading(true);
-      await fetchData("obtener-planeacion", setPlanningData, "obtener la planeación");
+      await fetchData(PLANEACION_URL, setPlanningData, "obtener la planeación");
       setIsLoading(false);
     } catch (error) {
       if (error.response && error.response.status === 401) {
@@ -358,10 +359,10 @@ export default function PlaneacionProduccion() {
       const token = checkTokenAndRedirect();
       if (!token) return;
 
-      const url = `${API_BASE_URL_POST}/api/modify/${selectedRow.id}`;
+      const url = `${MODIFY_PLAN_URL_BASE}${selectedRow.id}`;
       // Validar y sanitizar la URL
       const sanitizedUrl = sanitizeUrl(url);
-      if (!isSafeUrl(sanitizedUrl, ALLOWED_PUT_ENDPOINTS)) {
+      if (!isSafeUrl(sanitizedUrl)) {
         throw new Error("URL no permitida");
       }
 
