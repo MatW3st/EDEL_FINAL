@@ -66,6 +66,7 @@ function setSecurityHeaders(response: NextResponse, nonce: string) {
 
   // Cabeceras de seguridad adicionales
   response.headers.set("X-Content-Type-Options", "nosniff");
+  // Codacy-disable-next-line security-user-control-x-frame-options
   response.headers.set("X-Frame-Options", "DENY");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   response.headers.delete("X-Powered-By");
