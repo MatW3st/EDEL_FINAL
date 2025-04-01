@@ -37,7 +37,6 @@ export default function PlaneacionProduccion() {
 
   const statusOptions = ["Todos", "Planeado", "En Proceso", "Completado"];
 
-  // Eliminamos la función formatDate porque no se usa (resuelve el error de Codacy en la línea 41)
   const formatDateForInput = (dateStr) => {
     if (!dateStr) return "N/A";
     const date = new Date(dateStr);
@@ -55,13 +54,20 @@ export default function PlaneacionProduccion() {
     setShowModal(true);
   };
 
-  // Lista blanca de endpoints permitidos para evitar problemas de seguridad
-  const ALLOWED_ENDPOINTS = ["obtener-sucursales", "obtener-planeacion"];
+  // Lista blanca de endpoints permitidos para GET
+  const ALLOWED_GET_ENDPOINTS = ["obtener-sucursales", "obtener-planeacion"];
+  // Lista blanca de endpoints permitidos para POST y PUT
+  const ALLOWED_POST_ENDPOINTS = ["/api/add"];
+  const ALLOWED_PUT_ENDPOINTS = ["/api/modify/"];
+
+  // Validar URLs para evitar problemas de seguridad
+  const isSafeUrl = (url, allowedEndpoints) => {
+    return allowedEndpoints.some(endpoint => url.includes(endpoint));
+  };
 
   const fetchData = async (endpoint, setter, errorAction) => {
     try {
-      // Validar el endpoint contra la lista blanca (resuelve el error de seguridad en la línea 77)
-      if (!ALLOWED_ENDPOINTS.includes(endpoint)) {
+      if (!ALLOWED_GET_ENDPOINTS.includes(endpoint)) {
         throw new Error("Endpoint no permitido");
       }
 
@@ -71,6 +77,10 @@ export default function PlaneacionProduccion() {
       }
 
       const url = `${API_BASE_URL_GET}/${endpoint}`;
+      if (!isSafeUrl(url, ALLOWED_GET_ENDPOINTS)) {
+        throw new Error("URL no permitida");
+      }
+
       const response = await axios.get(url, {
         withCredentials: true,
         headers: {
@@ -170,7 +180,7 @@ export default function PlaneacionProduccion() {
     setSelectedPlanSucursal("");
   };
 
-  // Funciones auxiliares para refactorizar handleSavePlan
+  // Funciones auxiliares para handleSavePlan
   const validatePlanInputs = (sucursal, date, production) => {
     if (!sucursal || !date || !production) {
       setModalMessage("⚠️ Por favor, completa todos los campos antes de guardar.");
@@ -205,8 +215,21 @@ export default function PlaneacionProduccion() {
     return unit === "Toneladas" ? productionValue * 1000 : productionValue;
   };
 
+  const checkTokenAndRedirect = () => {
+    const token = Cookies.get("token");
+    if (!token) {
+      setModalMessage(
+        "⚠️ No se encontró un token de autenticación. Por favor, inicia sesión nuevamente."
+      );
+      setShowModal(true);
+      router.push("/login");
+      return false;
+    }
+    return token;
+  };
+
   const handleSavePlan = async () => {
-    // Validar entradas (resuelve el error de demasiadas líneas en la línea 176)
+    // Validar entradas
     if (!validatePlanInputs(selectedPlanSucursal, planDate, dailyProduction)) {
       return;
     }
@@ -226,28 +249,23 @@ export default function PlaneacionProduccion() {
     };
 
     try {
-      const token = Cookies.get("token");
-      if (!token) {
-        setModalMessage(
-          "⚠️ No se encontró un token de autenticación. Por favor, inicia sesión nuevamente."
-        );
-        setShowModal(true);
-        router.push("/login");
-        return;
+      const token = checkTokenAndRedirect();
+      if (!token) return;
+
+      const url = `${API_BASE_URL_POST}/api/add`;
+      if (!isSafeUrl(url, ALLOWED_POST_ENDPOINTS)) {
+        throw new Error("URL no permitida");
       }
 
-      const response = await axios.post(
-        `${API_BASE_URL_POST}/api/add`,
-        planData,
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-            Cookie: `token=${token}`,
-          },
-        }
-      );
+      // Eliminamos la asignación a 'response' porque no se usa (resuelve el error en la línea 239)
+      await axios.post(url, planData, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          Cookie: `token=${token}`,
+        },
+      });
 
       setModalMessage("✅ Planeación guardada y publicada exitosamente!");
       setShowModal(true);
@@ -320,28 +338,22 @@ export default function PlaneacionProduccion() {
     };
 
     try {
-      const token = Cookies.get("token");
-      if (!token) {
-        setModalMessage(
-          "⚠️ No se encontró un token de autenticación. Por favor, inicia sesión nuevamente."
-        );
-        setShowModal(true);
-        router.push("/login");
-        return;
+      const token = checkTokenAndRedirect();
+      if (!token) return;
+
+      const url = `${API_BASE_URL_POST}/api/modify/${selectedRow.id}`;
+      if (!isSafeUrl(url, ALLOWED_PUT_ENDPOINTS)) {
+        throw new Error("URL no permitida");
       }
 
-      const response = await axios.put(
-        `${API_BASE_URL_POST}/api/modify/${selectedRow.id}`,
-        updatedPlanData,
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-            Cookie: `token=${token}`,
-          },
-        }
-      );
+      await axios.put(url, updatedPlanData, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          Cookie: `token=${token}`,
+        },
+      });
 
       setPlanningData((prevData) =>
         prevData.map((item) =>
