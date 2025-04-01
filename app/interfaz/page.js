@@ -16,6 +16,33 @@ const PLANEACION_URL = `${API_BASE_URL_GET}/obtener-planeacion`;
 const ADD_PLAN_URL = `${API_BASE_URL_POST}/api/add`;
 const MODIFY_PLAN_URL_BASE = `${API_BASE_URL_POST}/api/modify/`;
 
+// Lista blanca de URLs permitidas
+const ALLOWED_URLS = [
+  SUCURSALES_URL,
+  PLANEACION_URL,
+  ADD_PLAN_URL,
+  MODIFY_PLAN_URL_BASE,
+];
+
+// Validar URLs para evitar problemas de seguridad
+const isSafeUrl = (url) => {
+  return ALLOWED_URLS.some((allowedUrl) => url.startsWith(allowedUrl));
+};
+
+// Función para sanitizar URLs y evitar inyecciones
+const sanitizeUrl = (url) => {
+  // Eliminar caracteres potencialmente peligrosos
+  const sanitized = url.replace(/[^a-zA-Z0-9:/.-]/g, "");
+  // Asegurarse de que la URL comience con el dominio esperado
+  if (
+    !sanitized.startsWith(API_BASE_URL_GET) &&
+    !sanitized.startsWith(API_BASE_URL_POST)
+  ) {
+    throw new Error("URL no pertenece a un dominio permitido");
+  }
+  return sanitized;
+};
+
 export default function PlaneacionProduccion() {
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
@@ -57,35 +84,6 @@ export default function PlaneacionProduccion() {
       }`
     );
     setShowModal(true);
-  };
-
-  // Lista blanca de URLs permitidas
-  const ALLOWED_URLS = [
-    SUCURSALES_URL,
-    PLANEACION_URL,
-    ADD_PLAN_URL,
-    MODIFY_PLAN_URL_BASE,
-  ];
-
-  // Validar URLs para evitar problemas de seguridad
-  const isSafeUrl = (url) => {
-    return ALLOWED_URLS.some((allowedUrl) =>
-      url.startsWith(allowedUrl)
-    );
-  };
-
-  // Función para sanitizar URLs y evitar inyecciones
-  const sanitizeUrl = (url) => {
-    // Eliminar caracteres potencialmente peligrosos
-    const sanitized = url.replace(/[^a-zA-Z0-9:/.-]/g, "");
-    // Asegurarse de que la URL comience con el dominio esperado
-    if (
-      !sanitized.startsWith(API_BASE_URL_GET) &&
-      !sanitized.startsWith(API_BASE_URL_POST)
-    ) {
-      throw new Error("URL no pertenece a un dominio permitido");
-    }
-    return sanitized;
   };
 
   const fetchData = async (url, setter, errorAction) => {
