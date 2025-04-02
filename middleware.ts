@@ -66,8 +66,6 @@ function setSecurityHeaders(response: NextResponse, nonce: string) {
 
   // Cabeceras de seguridad adicionales
   response.headers.set("X-Content-Type-Options", "nosniff");
-  // Codacy-disable-next-line security-user-control-x-frame-options
-  response.headers.set("X-Frame-Options", "DENY");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   response.headers.delete("X-Powered-By");
 }
@@ -90,8 +88,9 @@ export async function middleware(request: NextRequest) {
     const origin = request.headers.get("origin");
     const pathname = request.nextUrl.pathname;
     const method = request.method;
-    const ip = request.ip ?? "127.0.0.1";
-
+    const ip =
+    request.headers.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1";
+  
     // Generar nonce único
     const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
 
