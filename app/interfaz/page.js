@@ -99,15 +99,28 @@ export default function PlaneacionProduccion() {
         throw new Error("URL no permitida");
       }
 
-      // Codacy-disable-next-line security-input-validation
-      const response = await axios.get(url.toString(), {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-          Cookie: `token=${token}`,
-        },
-      });
+      const allowedDomains = ["http://localhost:30001.com",];
+
+      try {
+        const urlObj = new URL(sanitizedUrl);
+      
+        if (!allowedDomains.includes(urlObj.hostname)) {
+          throw new Error("URL no permitida");
+        }
+      
+        const response = await axios.get(urlObj.toString(), {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+            Cookie: `token=${token}`,
+          },
+        });
+      
+      } catch (error) {
+        console.error("Error al validar la URL:", error);
+      }
+      
 
       const data = response.data;
       const sortedData = Array.isArray(data)
