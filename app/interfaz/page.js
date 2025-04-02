@@ -106,7 +106,7 @@ export default function PlaneacionProduccion() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
           Cookie: `token=${token}`,
-        },z
+        },
       });
 
       const data = response.data;
