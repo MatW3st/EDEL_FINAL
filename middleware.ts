@@ -89,7 +89,7 @@ export async function middleware(request: NextRequest) {
     const pathname = request.nextUrl.pathname;
     const method = request.method;
     const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1";
+    request.headers.get("x-forwarded-for")?.split(",")[0] ?? "127.0.0.1";
   
     // Generar nonce único
     const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
