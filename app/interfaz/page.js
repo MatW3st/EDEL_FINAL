@@ -100,7 +100,7 @@ export default function PlaneacionProduccion() {
       }
 
       // Codacy-disable-next-line security-input-validation
-      const responsze = await axios.get(sanitizedUrl, {
+      const response = await axios.get(url.toString(), {
         withCredentials: true,
         headers: {
           "Content-Type": "application/json",
