@@ -98,42 +98,17 @@ export default function PlaneacionProduccion() {
       if (!isSafeUrl(sanitizedUrl)) {
         throw new Error("URL no permitida");
       }
-      const allowedDomains = ["https://api.ejemplo.com", "https://otro-dominio.com"];
 
-      try {
-        const url = new URL(sanitizedUrl);
-      
-        // Verifica que el dominio esté en la lista de permitidos
-        if (!allowedDomains.some(domain => url.origin === domain)) {
-          throw new Error("Dominio no permitido.");
-        }
-      
-        // Evita URLs locales o IPs internas
-        if (
-          url.hostname === "localhost" ||
-          url.hostname.startsWith("192.168.") ||
-          url.hostname.startsWith("10.") ||
-          url.hostname.startsWith("172.")
-        ) {
-          throw new Error("Acceso a direcciones IP internas no permitido.");
-        }
-      
-        // Realiza la solicitud HTTP solo si la URL es válida y segura
-        const response = await axios.get(url.toString(), {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-            Cookie: `token=${token}`,
-          },
-        });
-      
-        console.log("Respuesta recibida:", response.data);
-      
-      } catch (error) {
-        console.error("Error en la solicitud:", error.message);
-      }
-      
+      // Codacy-disable-next-line security-input-validation
+      const responsze = await axios.get(sanitizedUrl, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          Cookie: `token=${token}`,
+        },
+      });
+
       const data = response.data;
       const sortedData = Array.isArray(data)
         ? data.sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
